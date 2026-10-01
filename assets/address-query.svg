@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 260" width="1150" height="260" role="img" aria-labelledby="title desc">
+<title id="title">쿼리·인덱스 처리 흐름</title><desc id="desc">검색 조건: 조회 패턴 분석 → 병목 분석: 쿼리 실행 계획 → 조회 개선: 쿼리 · 인덱스 → 응답 비교: 개선 효과 측정</desc><defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="#6653be"/></marker></defs>
+<rect width="1150" height="260" rx="18" fill="#f0edf9"/><text x="30" y="41" fill="#6653be" font-family="sans-serif" font-size="14" letter-spacing="2">쿼리·인덱스 처리 흐름</text><g font-family="'Malgun Gothic', sans-serif"><g><rect x="30" y="78" width="250" height="116" rx="12" fill="white" stroke="#6653be" stroke-opacity=".28"/>
+<text x="50" y="104" fill="#6653be" font-size="13" letter-spacing="1.5">01</text>
+<text x="50" y="138" fill="#23273f" font-size="22" font-weight="700">검색 조건</text>
+<text x="50" y="168" fill="#556173" font-size="17">조회 패턴 분석</text></g><path d="M 281 136 H 306" stroke="#6653be" stroke-width="2" marker-end="url(#arrow)"/><g><rect x="310" y="78" width="250" height="116" rx="12" fill="white" stroke="#6653be" stroke-opacity=".28"/>
+<text x="330" y="104" fill="#6653be" font-size="13" letter-spacing="1.5">02</text>
+<text x="330" y="138" fill="#23273f" font-size="22" font-weight="700">병목 분석</text>
+<text x="330" y="168" fill="#556173" font-size="17">쿼리 실행 계획</text></g><path d="M 561 136 H 586" stroke="#6653be" stroke-width="2" marker-end="url(#arrow)"/><g><rect x="590" y="78" width="250" height="116" rx="12" fill="white" stroke="#6653be" stroke-opacity=".28"/>
+<text x="610" y="104" fill="#6653be" font-size="13" letter-spacing="1.5">03</text>
+<text x="610" y="138" fill="#23273f" font-size="22" font-weight="700">조회 개선</text>
+<text x="610" y="168" fill="#556173" font-size="17">쿼리 · 인덱스</text></g><path d="M 841 136 H 866" stroke="#6653be" stroke-width="2" marker-end="url(#arrow)"/><g><rect x="870" y="78" width="250" height="116" rx="12" fill="white" stroke="#6653be" stroke-opacity=".28"/>
+<text x="890" y="104" fill="#6653be" font-size="13" letter-spacing="1.5">04</text>
+<text x="890" y="138" fill="#23273f" font-size="22" font-weight="700">응답 비교</text>
+<text x="890" y="168" fill="#556173" font-size="17">개선 효과 측정</text></g></g></svg>

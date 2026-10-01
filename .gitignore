@@ -1,0 +1,6 @@
+.local/
+__pycache__/
+_public/
+*.log
+.DS_Store
+Thumbs.db
