@@ -49,7 +49,7 @@ def eyebrow(label):
 def section_head(number, label, title, intro=''):
     return f'{eyebrow(number+" / "+label)}<h2>{e(title)}</h2>'+ (f'<p class="section-intro">{e(intro)}</p>' if intro else '')
 
-def make_svg(path, title, nodes, theme, branch=None):
+def make_svg(path, title, nodes, theme, branch=None, connected=True):
     palette = {'violet':('#6653be','#f0edf9'), 'blue':('#32679b','#edf3f9'), 'green':('#347768','#edf5f1'), 'amber':('#946b35','#f9f2e9')}
     color,bg = palette[theme]
     height = 380 if branch else 260
@@ -60,7 +60,7 @@ def make_svg(path, title, nodes, theme, branch=None):
 <text x="{x+20}" y="104" fill="{color}" font-size="13" letter-spacing="1.5">0{i+1}</text>
 <text x="{x+20}" y="138" fill="#23273f" font-size="22" font-weight="700">{e(label)}</text>
 <text x="{x+20}" y="168" fill="#556173" font-size="17">{e(caption)}</text></g>''')
-        if i < len(nodes)-1:
+        if connected and i < len(nodes)-1:
             boxes.append(f'<path d="M {x+251} 136 H {x+276}" stroke="{color}" stroke-width="2" marker-end="url(#arrow)"/>')
     if branch:
         boxes.append(f'<text x="30" y="248" font-size="14" fill="{color}">별도 처리 경로</text>')
@@ -68,7 +68,7 @@ def make_svg(path, title, nodes, theme, branch=None):
             x = 30+i*560
             boxes.append(f'<rect x="{x}" y="263" width="530" height="76" rx="10" fill="white" stroke="{color}" stroke-opacity=".28"/><text x="{x+20}" y="294" fill="#23273f" font-size="20" font-weight="700">{e(label)}</text><text x="{x+20}" y="321" fill="#556173" font-size="17">{e(caption)}</text>')
         boxes.append(f'<path d="M 562 301 H 586" stroke="{color}" stroke-width="2" marker-end="url(#arrow)"/>')
-    desc = ' → '.join(f'{a}: {b}' for a,b in nodes)
+    desc = (' → ' if connected else '; ').join(f'{a}: {b}' for a,b in nodes)
     if branch:
         desc += '; 별도 경로: '+' → '.join(f'{a}: {b}' for a,b in branch)
     write(path, f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 {height}" width="1150" height="{height}" role="img" aria-labelledby="title desc">
@@ -83,6 +83,28 @@ def diagram(src, title, note, steps=None):
     return f'''<figure class="diagram"><div class="figure-heading"><h3>{e(title)}</h3><button type="button" class="zoom-link" data-zoom="{src}" data-title="{e(title)}">도식 확대 <span aria-hidden="true">↗</span></button></div>
 <button class="diagram-open" type="button" data-zoom="{src}" data-title="{e(title)}" aria-label="{e(title)} 도식 확대"><img src="{src}" alt="{e(title)}" loading="lazy" width="1150" height="260"></button>{step_text}{caption}</figure>'''
 
+def make_journey_svg(p):
+    titles = ['기본 API', '동시성 비교', 'DB 최적화', 'Redis 품절 처리', '이벤트 발행', '멱등성·복구']
+    captions = ['초과 할당 재현', '조건부 UPDATE 선택', '불필요한 SQL 축소', 'DB 접근 전 품절 응답', 'Kafka · Outbox', '중복 방지 · 재처리']
+    boxes = []
+    for i, step in enumerate(p['journey']['steps']):
+        x, y = 30 + (i % 3) * 380, 68 + (i // 3) * 170
+        boxes.append(f'<rect x="{x}" y="{y}" width="330" height="124" rx="12" fill="white" stroke="#946b35" stroke-opacity=".28"/><text x="{x+20}" y="{y+28}" fill="#946b35" font-size="14">{e(step["version"])}</text><text x="{x+20}" y="{y+66}" fill="#23273f" font-size="23" font-weight="700">{e(titles[i])}</text><text x="{x+20}" y="{y+99}" fill="#556173" font-size="17">{e(captions[i])}</text>')
+        if i % 3 < 2:
+            boxes.append(f'<path d="M {x+332} {y+62} H {x+372}" stroke="#946b35" stroke-width="2" marker-end="url(#arrow)"/>')
+    boxes.append('<path d="M1122 130 H1134 V218 H195 V232" fill="none" stroke="#946b35" stroke-width="2" marker-end="url(#arrow)"/>')
+    desc = ' → '.join(s['version']+' '+s['title'] for s in p['journey']['steps'])
+    write('assets/'+p['cardDiagram'], f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 400" width="1150" height="400" role="img" aria-labelledby="title desc"><title id="title">WMS-Lite 단계별 개선 과정</title><desc id="desc">{e(desc)}</desc><defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="#946b35"/></marker></defs><rect width="1150" height="400" rx="18" fill="#f9f2e9"/><g font-family="'Malgun Gothic', sans-serif"><text x="30" y="37" fill="#946b35" font-size="14" letter-spacing="2">WMS-LITE / V0 → V5</text>{''.join(boxes)}</g></svg>''')
+
+def experiment_tables(tables):
+    result = []
+    for t in tables:
+        head = ''.join(f'<th scope="col">{e(h)}</th>' for h in t['headers'])
+        rows = ''.join('<tr>'+f'<th scope="row">{e(row[0])}</th>'+''.join(f'<td>{e(v)}</td>' for v in row[1:])+'</tr>' for row in t['rows'])
+        wide = ' comparison-table-wide' if len(t['headers']) > 2 else ''
+        result.append(f'<div class="table-wrap comparison-table-wrap{wide}" tabindex="0" role="region" aria-label="{e(t["title"])}"><table><caption>{e(t["title"])}</caption><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table></div><p class="experiment-note">{e(t["note"])}</p>')
+    return ''.join(result)
+
 def modal():
     return '''<dialog id="diagram-dialog" aria-labelledby="diagram-title"><div class="dialog-heading"><h2 id="diagram-title">처리 흐름</h2><button type="button" id="dialog-close" aria-label="확대 도식 닫기">닫기 ×</button></div><div class="zoom-toolbar" aria-label="도식 확대 도구"><button type="button" id="zoom-out" aria-label="도식 축소">−</button><output id="zoom-level" aria-live="polite">100%</output><button type="button" id="zoom-in" aria-label="도식 확대">+</button><button type="button" id="zoom-reset">크기 초기화</button><span>확대 후 가로·세로로 스크롤할 수 있습니다.</span></div><div class="zoom-canvas"><img id="zoom-image" alt="선택한 확대 도식" draggable="false"></div></dialog>'''
 
@@ -91,7 +113,7 @@ def make_home():
     cards=[]
     for p in PROJECTS:
         cards.append(f'''<a class="project-card theme-{p['theme']}" href="projects/{p['id']}.html" aria-label="{e(p['title'])} 상세 보기"><div class="card-top"><span>CASE {p['number']} · {p['kind']}</span><span class="status status-{p['statusType']}">{e(p['status'])}</span></div>
-<div class="card-art"><img src="assets/{p['id']}-overview.svg" alt="{e(p['cardFlow'])}" width="1150" height="260" loading="lazy"></div><div class="card-body"><h3>{e(p['title'])}</h3><p class="card-flow">{e(p['cardFlow'])}</p><p>{e(p['summary'])}</p><dl><div><dt>개발 내용</dt><dd>{e(p['cardRole'])}</dd></div><div><dt>설계</dt><dd>{e(p['cardDesign'])}</dd></div></dl>{chips(p['tags'][:4])}<div class="card-link">프로젝트 상세 보기 <span aria-hidden="true">↗</span></div></div></a>''')
+<div class="card-art"><img src="assets/{p.get('cardDiagram',p['id']+'-overview.svg')}" alt="{e(p['cardFlow'])}" width="1150" height="{400 if p.get('journey') else 260}" loading="lazy"></div><div class="card-body"><h3>{e(p['title'])}</h3><p class="card-flow">{e(p['cardFlow'])}</p><p>{e(p['summary'])}</p><dl><div><dt>개발 내용</dt><dd>{e(p['cardRole'])}</dd></div><div><dt>설계</dt><dd>{e(p['cardDesign'])}</dd></div></dl>{chips(p['tags'][:4])}<div class="card-link">프로젝트 상세 보기 <span aria-hidden="true">↗</span></div></div></a>''')
     stacks = ''.join(f'<article class="stack-card">{eyebrow(s["label"])}<h3>{e(s["title"])}</h3>{chips(s["items"])}<p>{e(s["text"])}</p></article>' for s in PROFILE['stack'])
     def credentials(items):
         return '<ul class="credential-list">'+''.join(f'<li><span>{e(x["date"])}</span><div><h4>{e(x["title"])}</h4><p>{e(x["text"])}</p></div></li>' for x in items)+'</ul>'
@@ -107,26 +129,35 @@ def make_home():
 def make_detail(p):
     prefix='../'
     a=p['architecture']
-    nav=''.join(f'<a href="#{id}">{label}</a>' for id,label in [('overview','개요'),('architecture','아키텍처'),('features','기능별 구현'),('verification','결과·테스트'),('reflection','회고')])
+    journey = p.get('journey')
+    section_number = lambda n: f'{n+bool(journey):02d}'
+    nav_items = [('overview','개요')]+([('evolution','실험 과정')] if journey else [])+[('architecture','아키텍처'),('features','단계별 구현' if journey else '기능별 구현'),('verification','결과·테스트'),('reflection','회고')]
+    nav=''.join(f'<a href="#{id}">{label}</a>' for id,label in nav_items)
+    journey_html = ''
+    if journey:
+        steps = ''.join(f'''<li><a href="#tab-{e(s['feature'])}"><span class="journey-version">{e(s['version'])}</span><h3>{e(s['title'])}</h3><p>{e(s['text'])}</p><strong class="journey-result">{e(s['result'])}</strong><code>{e(s['branch'])}</code><span class="journey-link">단계 자세히 보기 ↗</span></a></li>''' for s in journey['steps'])
+        journey_html = f'<section class="detail-section" id="evolution">{section_head("01","EXPERIMENT JOURNEY",journey["title"],journey["intro"])}<ol class="experiment-journey">{steps}</ol><p class="experiment-note">단계별 수치의 부하 조건과 반복 횟수는 각 구현 탭에 표시했습니다.</p></section>'
     metrics=''.join(f'<div><dt>{e(k)}</dt><dd>{e(v)}</dd></div>' for k,v in p['metrics'])
     buttons=[]; panels=[]
     for i,f in enumerate(p['features']):
-        buttons.append(f'<button id="tab-{f["id"]}" type="button" role="tab" aria-selected="{str(i==0).lower()}" aria-controls="panel-{f["id"]}" tabindex="{0 if i==0 else -1}"><span class="tab-index">0{i+1}</span>{e(f["title"])}<span aria-hidden="true" class="tab-arrow">→</span></button>')
+        version = f.get('version', f'{i+1:02d}')
+        buttons.append(f'<button id="tab-{f["id"]}" type="button" role="tab" aria-selected="{str(i==0).lower()}" aria-controls="panel-{f["id"]}" tabindex="{0 if i==0 else -1}"><span class="tab-index">{e(version)}</span>{e(f["title"])}<span aria-hidden="true" class="tab-arrow">→</span></button>')
         decisions=''.join(f'<article class="decision"><h4>{e(t)}</h4><p>{e(d)}</p></article>' for t,d in f['decisions'])
-        panels.append(f'''<article class="feature-panel" role="tabpanel" id="panel-{f['id']}" aria-labelledby="tab-{f['id']}" tabindex="0"><p class="eyebrow">FEATURE 0{i+1} <span class="feature-state">{e(f['status'])}</span></p><h3 class="feature-title">{e(f['title'])}</h3><p class="feature-intro">{e(f['intro'])}</p>
+        branches = '<div class="experiment-branches"><span>실험 브랜치</span>'+''.join(f'<code>{e(b)}</code>' for b in f['branches'])+'</div>' if f.get('branches') else ''
+        panels.append(f'''<article class="feature-panel" role="tabpanel" id="panel-{f['id']}" aria-labelledby="tab-{f['id']}" tabindex="0"><p class="eyebrow">{e(version) if f.get('version') else 'FEATURE '+version} <span class="feature-state">{e(f['status'])}</span></p><h3 class="feature-title">{e(f['title'])}</h3><p class="feature-intro">{e(f['intro'])}</p>{branches}
 {diagram(prefix+'assets/'+p['id']+'-'+f['id']+'.svg',f['title']+' 처리 흐름',f.get('flowNote',''),f['flow'])}
 <div class="problem-solution"><article><span class="small-label">PROBLEM</span><h4>문제</h4><p>{e(f['problem'])}</p></article><article><span class="small-label">SOLUTION</span><h4>해결</h4><p>{e(f['solution'])}</p></article></div>
-<h4 class="feature-subtitle">설계 이유와 트레이드오프</h4>{decisions}<div class="validation-note"><span class="small-label">VALIDATION</span><h4>구현 결과와 테스트</h4><p>{e(f['validation'])}</p></div></article>''')
+<h4 class="feature-subtitle">설계 이유와 트레이드오프</h4>{decisions}{experiment_tables(f.get('tables',[]))}<div class="validation-note"><span class="small-label">VALIDATION</span><h4>구현 결과와 테스트</h4><p>{e(f['validation'])}</p></div></article>''')
     repo=f'<a class="secondary-button" href="{e(p["repository"])}" target="_blank" rel="noopener noreferrer">GitHub 저장소 ↗</a>' if p.get('repository') else ''
     rows=''.join(f'<tr><th scope="row">{e(k)}</th><td>{e(v)}</td></tr>' for k,v in p['verification'])
     other_links=''.join(f'<a href="{x["id"]}.html"><span>{x["kind"]}</span><strong>{e(x["title"])}</strong><span aria-hidden="true">↗</span></a>' for x in PROJECTS if x['id']!=p['id'])
     body=header(prefix,True)+f'''<main id="main" class="detail theme-{p['theme']}"><div class="container"><div class="breadcrumb"><a href="../index.html#work">← 전체 프로젝트</a><span>CASE {p['number']} / {p['kind']}</span></div><section class="detail-hero" id="overview">{eyebrow('PROJECT DETAIL / '+p['kind'])}<h1>{e(p['title'])}</h1><p class="detail-subtitle">{e(p['subtitle'])}</p><p class="project-meta"><span>{e(p['period'])}</span><span class="status status-{p['statusType']}">{e(p['status'])}</span></p>{chips(p['tags'])}
 <div class="snapshot"><div><span class="small-label">OVERVIEW</span><h2>프로젝트 개요</h2><p>{e(p['summary'])}</p></div><div><span class="small-label">SCOPE</span><h2>담당 업무 및 개발 내용</h2><p>{e(p['scope'])}</p></div></div><dl class="metrics">{metrics}</dl>{repo}</section></div>
 <nav class="detail-nav" aria-label="프로젝트 목차"><div class="container">{nav}</div></nav>
-<div class="container"><section class="detail-section" id="architecture">{section_head('01','ARCHITECTURE','시스템 구성과 처리 흐름')}{diagram(prefix+'assets/'+p['id']+'-overview.svg',a['title'],a['note'],a['nodes'])}</section>
-<section class="detail-section" id="features">{section_head('02','IMPLEMENTATION','주요 기능과 설계','기능별 처리 흐름과 문제 해결 과정, 설계 이유와 구현 결과를 소개합니다.')}<noscript><p class="notice">JavaScript가 꺼져 있어 모든 기능 설명을 순서대로 표시합니다. 도식은 이미지 파일을 직접 열어 볼 수 있습니다.</p></noscript><div class="features-layout"><aside class="feature-nav"><p class="small-label">FEATURES</p><div role="tablist" aria-label="{e(p['title'])} 기능" aria-orientation="vertical">{''.join(buttons)}</div><a class="back-home" href="../index.html#work">← 프로젝트 목록</a></aside><div class="feature-content">{''.join(panels)}</div></div></section>
-<section class="detail-section" id="verification">{section_head('03','RESULTS & TESTING','개발 결과와 테스트')}<div class="table-wrap"><table><caption>{e(p['title'])} 개발 결과</caption><thead><tr><th scope="col">항목</th><th scope="col">결과</th></tr></thead><tbody>{rows}</tbody></table></div></section>
-<section class="detail-section" id="reflection">{section_head('04','REFLECTION','개발 회고와 개선 방향')}<div class="reflection-grid"><article><h3>회고</h3><p>{e(p['reflection'])}</p></article><article><span class="small-label">NEXT / 향후 계획</span><h3>향후 개선 방향</h3><p>{e(p['next'])}</p></article></div></section>
+<div class="container">{journey_html}<section class="detail-section" id="architecture">{section_head(section_number(1),'ARCHITECTURE','시스템 구성과 처리 흐름')}{diagram(prefix+'assets/'+p['id']+'-overview.svg',a['title'],a['note'],a['nodes'])}</section>
+<section class="detail-section" id="features">{section_head(section_number(2),'IMPLEMENTATION',p.get('featureHeading','주요 기능과 설계'),p.get('featureIntro','기능별 처리 흐름과 문제 해결 과정, 설계 이유와 구현 결과를 소개합니다.'))}<noscript><p class="notice">JavaScript가 꺼져 있어 모든 기능 설명을 순서대로 표시합니다. 도식은 이미지 파일을 직접 열어 볼 수 있습니다.</p></noscript><div class="features-layout"><aside class="feature-nav"><p class="small-label">{'EXPERIMENT STAGES' if journey else 'FEATURES'}</p><div role="tablist" aria-label="{e(p['title'])} 기능" aria-orientation="vertical">{''.join(buttons)}</div><a class="back-home" href="../index.html#work">← 프로젝트 목록</a></aside><div class="feature-content">{''.join(panels)}</div></div></section>
+<section class="detail-section" id="verification">{section_head(section_number(3),'RESULTS & TESTING','개발 결과와 테스트')}<div class="table-wrap"><table><caption>{e(p['title'])} 개발 결과</caption><thead><tr><th scope="col">항목</th><th scope="col">결과</th></tr></thead><tbody>{rows}</tbody></table></div></section>
+<section class="detail-section" id="reflection">{section_head(section_number(4),'REFLECTION','개발 회고와 개선 방향')}<div class="reflection-grid"><article><h3>회고</h3><p>{e(p['reflection'])}</p></article><article><span class="small-label">NEXT / 향후 계획</span><h3>향후 개선 방향</h3><p>{e(p['next'])}</p></article></div></section>
 <section class="other-projects"><h2>다른 프로젝트도 살펴보기</h2><div>{other_links}</div><a class="secondary-button" href="../index.html#work">전체 프로젝트로 돌아가기 ←</a></section></div></main>'''+modal()+footer(prefix)
     write('projects/'+p['id']+'.html',shell(p['title']+' | '+PROFILE['name'],p['subtitle'],body,prefix))
 
@@ -135,14 +166,16 @@ def build(base_path='/'):
         a=p['architecture']
         make_svg('assets/'+p['id']+'-overview.svg',a['title'],a['nodes'],p['theme'],a.get('branch'))
         for f in p['features']:
-            make_svg('assets/'+p['id']+'-'+f['id']+'.svg',f['title']+' 처리 흐름',f['flow'],p['theme'])
+            make_svg('assets/'+p['id']+'-'+f['id']+'.svg',f['title']+' 처리 흐름',f['flow'],p['theme'],f.get('branch'),f.get('flowConnected',True))
+        if p.get('journey'):
+            make_journey_svg(p)
         make_detail(p)
     make_home()
     write('.nojekyll','')
     # Inline page is independent of the missing URL depth on GitHub Pages.
     home_url = '/' + base_path.strip('/') + '/' if base_path.strip('/') else '/'
     write('404.html','''<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>페이지를 찾을 수 없습니다</title><style>body{margin:0;background:#f7f6f2;color:#23273f;font-family:sans-serif;display:grid;min-height:100vh;place-items:center}main{padding:30px;max-width:600px}h1{font-size:32px}a,button{color:#6653be;font-size:16px;margin-right:16px}button{background:none;border:0;cursor:pointer}</style></head><body><main><p>404 / PAGE NOT FOUND</p><h1>페이지를 찾을 수 없습니다.</h1><p>주소를確認하거나 포트폴리오 홈으로 이동해 주세요.</p><a id="home" href="HOME_URL">홈으로 이동 →</a><button id="back" type="button">이전 페이지</button></main><script>document.getElementById('back').addEventListener('click',()=>history.back());</script></body></html>'''.replace('HOME_URL',e(home_url)).replace('確認','확인'))
-    print(f'Generated home, {len(PROJECTS)} project pages, 404 and {sum(1+len(p["features"]) for p in PROJECTS)} original diagrams.')
+    print(f'Generated home, {len(PROJECTS)} project pages, 404 and {sum(1+len(p["features"])+bool(p.get("journey")) for p in PROJECTS)} original diagrams.')
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser()
