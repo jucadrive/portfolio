@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 260" width="1150" height="260" role="img" aria-labelledby="title desc">
+<title id="title">REST·SOAP 중계 처리 흐름</title><desc id="desc">앱 요청: 요청 객체 · 파라미터 → SOAP 생성: 업무별 XML 구성 → 기간계 호출: SOAP 요청 · XML 응답 → 응답 변환: 객체 매핑 · JSON</desc><defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="#32679b"/></marker></defs>
+<rect width="1150" height="260" rx="18" fill="#edf3f9"/><text x="30" y="41" fill="#32679b" font-family="sans-serif" font-size="14" letter-spacing="2">REST·SOAP 중계 처리 흐름</text><g font-family="'Malgun Gothic', sans-serif"><g><rect x="30" y="78" width="250" height="116" rx="12" fill="white" stroke="#32679b" stroke-opacity=".28"/>
+<text x="50" y="104" fill="#32679b" font-size="13" letter-spacing="1.5">01</text>
+<text x="50" y="138" fill="#23273f" font-size="22" font-weight="700">앱 요청</text>
+<text x="50" y="168" fill="#556173" font-size="17">요청 객체 · 파라미터</text></g><path d="M 281 136 H 306" stroke="#32679b" stroke-width="2" marker-end="url(#arrow)"/><g><rect x="310" y="78" width="250" height="116" rx="12" fill="white" stroke="#32679b" stroke-opacity=".28"/>
+<text x="330" y="104" fill="#32679b" font-size="13" letter-spacing="1.5">02</text>
+<text x="330" y="138" fill="#23273f" font-size="22" font-weight="700">SOAP 생성</text>
+<text x="330" y="168" fill="#556173" font-size="17">업무별 XML 구성</text></g><path d="M 561 136 H 586" stroke="#32679b" stroke-width="2" marker-end="url(#arrow)"/><g><rect x="590" y="78" width="250" height="116" rx="12" fill="white" stroke="#32679b" stroke-opacity=".28"/>
+<text x="610" y="104" fill="#32679b" font-size="13" letter-spacing="1.5">03</text>
+<text x="610" y="138" fill="#23273f" font-size="22" font-weight="700">기간계 호출</text>
+<text x="610" y="168" fill="#556173" font-size="17">SOAP 요청 · XML 응답</text></g><path d="M 841 136 H 866" stroke="#32679b" stroke-width="2" marker-end="url(#arrow)"/><g><rect x="870" y="78" width="250" height="116" rx="12" fill="white" stroke="#32679b" stroke-opacity=".28"/>
+<text x="890" y="104" fill="#32679b" font-size="13" letter-spacing="1.5">04</text>
+<text x="890" y="138" fill="#23273f" font-size="22" font-weight="700">응답 변환</text>
+<text x="890" y="168" fill="#556173" font-size="17">객체 매핑 · JSON</text></g></g></svg>
