@@ -5,3 +5,5 @@
 택배사 모바일·기간계 미들웨어 유지보수, 오토스캐너 연계 API와 주소 조회·메시지 이력·정산 기능의 개발 경험, 개인 프로젝트 PeakLog와 WMS-Lite를 소개합니다. 프로젝트별 담당 업무와 주요 기능, 문제 해결 과정, 설계 이유와 구현 결과를 소개합니다.
 
 [이메일](mailto:dhzlehzl01@naver.com) · dhzlehzl01@naver.com
+
+https://jucadrive.github.io/portfolio/index.html
