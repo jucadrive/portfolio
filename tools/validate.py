@@ -50,6 +50,28 @@ for file,page in pages.items():
             if not pane or pane['aria-labelledby']!=tab['id']:errors.append(f'{relative}: invalid ARIA tab wiring')
 
 content=json.loads((ROOT/'content.json').read_text(encoding='utf-8'))
+def require(condition, message):
+    if not condition: errors.append('Content schema: '+message)
+
+def text_pairs(value):
+    return isinstance(value,list) and all(isinstance(row,list) and len(row)==2 and all(isinstance(x,str) and x for x in row) for row in value)
+
+profile=content['profile']
+require(all(isinstance(profile.get(k),str) and profile[k] for k in ('name','role','email','intro','experience')), 'missing profile text')
+require(isinstance(profile.get('headline'),list) and all(isinstance(s,str) and s for s in profile['headline']), 'headline must be nonempty strings')
+require(text_pairs(profile.get('highlights')), 'highlights must contain text pairs')
+project_ids=[p.get('id') for p in content['projects']]
+require(len(project_ids)==len(set(project_ids)), 'duplicate project IDs')
+require([p.get('number') for p in content['projects']]==[f'{i:02d}' for i in range(1,len(project_ids)+1)], 'CASE numbers do not match project order')
+for project in content['projects']:
+    require(all(isinstance(project.get(k),str) and project[k] for k in ('id','title','subtitle','period','summary','scope','reflection','next')), 'missing project text')
+    require(text_pairs(project.get('metrics')) and text_pairs(project.get('verification')), 'invalid metrics/results')
+    require(text_pairs(project['architecture'].get('nodes')), 'invalid architecture nodes')
+    features=project['features']
+    require(len({f['id'] for f in features})==len(features), 'duplicate feature IDs')
+    for feature in features:
+        require(all(isinstance(feature.get(k),str) and feature[k] for k in ('id','title','status','intro','problem','solution','validation')), 'missing feature text')
+        require(text_pairs(feature.get('flow')) and text_pairs(feature.get('decisions')), 'invalid flow/decisions')
 for p in content['projects']:
     if p['kind']=='업무 프로젝트' and p.get('repository'):errors.append('Work project has repository URL')
     if p.get('repository') and p['repository']!='https://github.com/jucadrive/HomeLab':errors.append('Repository URL is outside supplied allowlist')
