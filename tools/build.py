@@ -75,6 +75,34 @@ def make_svg(path, title, nodes, theme, branch=None, connected=True):
 <title id="title">{e(title)}</title><desc id="desc">{e(desc)}</desc><defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="{color}"/></marker></defs>
 <rect width="1150" height="{height}" rx="18" fill="{bg}"/><text x="30" y="41" fill="{color}" font-family="sans-serif" font-size="14" letter-spacing="2">{e(title)}</text><g font-family="'Malgun Gothic', sans-serif">{''.join(boxes)}</g></svg>''')
 
+def make_sensor_circuit(path):
+    """Conceptual signal paths for the assembled sensor kit, not a pinout."""
+    color = '#347768'
+    def box(x, y, w, h, title, label, caption):
+        return f'''<g><rect x="{x}" y="{y}" width="{w}" height="{h}" rx="12" fill="white" stroke="{color}" stroke-opacity=".35"/>
+<text x="{x+17}" y="{y+31}" fill="{color}" font-size="14">{e(label)}</text><text x="{x+17}" y="{y+65}" fill="#23273f" font-size="23" font-weight="700">{e(title)}</text><text x="{x+17}" y="{y+94}" fill="#556173" font-size="16">{e(caption)}</text></g>'''
+    boxes = ''.join([
+        box(30,75,215,112,'TDS 센서','SEN0244','영양액 측정 전압'),
+        box(300,75,215,112,'ADS1115','ADC','전압 디지털 변환'),
+        box(30,240,215,112,'DS18B20','TEMPERATURE','실측 수온'),
+        box(590,150,225,130,'ESP32','C · ESP-IDF','수온 보정 · ppm 계산'),
+        box(890,160,230,112,'보정 TDS · 수온','MQTT','서버로 측정값 전송'),
+    ])
+    paths = [
+        ('M245 132H296','전압',248,113),
+        ('M515 132H555V195H586','I²C',531,112),
+        ('M245 296H500V243H586','1-Wire',332,280),
+        ('M815 215H886','',0,0),
+    ]
+    wires = ''.join(f'<path d="{d}" fill="none" stroke="{color}" stroke-width="2.5" marker-end="url(#arrow)"/>'
+                    +(f'<text x="{x}" y="{y}" fill="{color}" font-size="15">{e(label)}</text>' if label else '')
+                    for d,label,x,y in paths)
+    write(path, f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 400" width="1150" height="400" role="img" aria-labelledby="title desc">
+<title id="title">뽀싹 — 직접 조립한 센서 회로 구성 개념도</title><desc id="desc">TDS 센서 전압은 ADS1115를 거쳐 I2C로 ESP32에 전달됩니다. DS18B20은 1-Wire로 수온을 전달합니다. ESP32가 수온 보정한 ppm과 수온을 MQTT로 전송합니다. 센서 키트를 직접 구입해 빵판과 점퍼 케이블로 연결했습니다. 실제 핀 배선도는 아닙니다.</desc>
+<defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="{color}"/></marker><pattern id="holes" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1.1" fill="{color}" fill-opacity=".13"/></pattern></defs>
+<rect width="1150" height="400" rx="18" fill="#edf5f1"/><rect x="272" y="67" width="570" height="292" rx="14" fill="url(#holes)" stroke="{color}" stroke-opacity=".15"/>
+<g font-family="'Malgun Gothic', sans-serif"><text x="30" y="38" fill="{color}" font-size="16">센서 키트 직접 구입 · 빵판과 점퍼 케이블로 회로 조립</text>{wires}{boxes}<text x="590" y="336" fill="{color}" font-size="16">실측 수온을 25°C 기준으로 보정</text><text x="30" y="382" fill="#556173" font-size="13">구성 개념도 · 전원과 GPIO는 실제 장비 설정에서 별도로 관리합니다.</text></g></svg>''')
+
 def diagram(src, title, note, steps=None):
     step_text = ''
     if steps:
@@ -121,11 +149,20 @@ def make_home():
     highlights = ''.join(f'<li><strong>{e(value)}</strong><span>{e(detail)}</span></li>' for value,detail in PROFILE['highlights'])
     body = header()+f'''<main id="main"><section class="hero" aria-labelledby="hero-title"><div class="container"><div class="hero-top"><div><p class="eyebrow">JU HYUNJUN / BACKEND PORTFOLIO</p><h1 id="hero-title">{hero_title}</h1><p class="hero-intro">{e(PROFILE['intro'])}</p><a class="primary-button" href="#work">프로젝트 살펴보기 <span aria-hidden="true">↘</span></a></div><aside class="hero-aside"><span class="small-label">BACKEND EXPERIENCE</span><ul class="hero-highlights">{highlights}</ul><span class="aside-bottom">Java · Kotlin · Spring</span></aside></div>
 <div id="journey" class="timeline-wrap"><p class="small-label">EXPERIENCE & PROJECTS</p><ol class="timeline">{timeline}</ol><p class="hero-footnote">{e(PROFILE['experience'])}</p></div></div></section>
-<section class="section container" id="work">{section_head('01','SELECTED PROJECTS','실무 및 개인 프로젝트','모바일·현장 장비와 기간계를 연결하는 업무, 주소 조회·메시지 관리와 개인 프로젝트의 개발 경험을 소개합니다.')}<div class="project-grid">{''.join(cards)}</div></section>
+<section class="section container" id="work">{section_head('01','SELECTED PROJECTS','실무 및 개인 프로젝트','실무의 API 구축·운영 개선과, 홈랩에서 실물 센서·모바일 앱까지 확장한 개인 프로젝트를 소개합니다.')}<div class="project-grid">{''.join(cards)}</div></section>
 <section class="section stack-section" id="stack"><div class="container">{section_head('02','TECH STACK','기술 역량','API 개발부터 데이터 조회·저장, 배포와 성능 분석까지 경험한 기술입니다.')}<div class="stack-grid">{stacks}</div></div></section>
 <section class="section container" id="credentials">{section_head('03','EDUCATION & CERTIFICATIONS','교육 및 자격')}<div class="credentials-grid"><article><h3>교육·학력</h3>{credentials(PROFILE['education'])}</article><article><h3>자격</h3>{credentials(PROFILE['certifications'])}</article></div></section>
 <section class="section contact-section" id="contact"><div class="container contact-inner"><div>{eyebrow('04 / CONTACT')}<h2>함께 풀어갈 문제를<br>이야기하고 싶습니다.</h2><p>요구사항을 데이터와 API로 구체화하고, 운영 중 발생하는 문제를 개선하는 개발을 지향합니다. 새로운 환경에서도 꾸준히 배우며 함께 성장하고 싶습니다.</p></div><div class="contact-card"><span class="small-label">EMAIL</span><a href="mailto:{e(PROFILE['email'])}">{e(PROFILE['email'])} <span aria-hidden="true">↗</span></a><p>{e(PROFILE['name'])} · {e(PROFILE['role'])}</p></div></div></section></main>'''+footer()
     write('index.html',shell(PROFILE['name']+' | Backend Portfolio',PROFILE['intro'],body))
+
+def screenshots(items, prefix='../'):
+    if not items:
+        return ''
+    cards = []
+    for item in items:
+        src = prefix + 'assets/' + item['file']
+        cards.append(f'''<figure class="app-screen"><a class="app-screen-open" href="{e(src)}" target="_blank" rel="noopener" data-zoom="{e(src)}" data-title="{e(item['title'])}" aria-label="{e(item['title'])} 화면 확대"><img src="{e(src)}" alt="{e(item['alt'])}" width="{item['width']}" height="{item['height']}" loading="lazy"><span>화면 확대 ↗</span></a><figcaption><h4>{e(item['title'])}</h4><p>{e(item['caption'])}</p></figcaption></figure>''')
+    return '<div class="app-screens">'+''.join(cards)+'</div>'
 
 def make_detail(p):
     prefix='../'
@@ -146,14 +183,14 @@ def make_detail(p):
         decisions=''.join(f'<article class="decision"><h4>{e(t)}</h4><p>{e(d)}</p></article>' for t,d in f['decisions'])
         branches = '<div class="experiment-branches"><span>실험 브랜치</span>'+''.join(f'<code>{e(b)}</code>' for b in f['branches'])+'</div>' if f.get('branches') else ''
         panels.append(f'''<article class="feature-panel" role="tabpanel" id="panel-{f['id']}" aria-labelledby="tab-{f['id']}" tabindex="0"><p class="eyebrow">{e(version) if f.get('version') else 'FEATURE '+version} <span class="feature-state">{e(f['status'])}</span></p><h3 class="feature-title">{e(f['title'])}</h3><p class="feature-intro">{e(f['intro'])}</p>{branches}
-{diagram(prefix+'assets/'+p['id']+'-'+f['id']+'.svg',f['title']+' 처리 흐름',f.get('flowNote',''),f['flow'])}
+{screenshots(f.get('screenshots',[]),prefix)}{diagram(prefix+'assets/'+p['id']+'-'+f['id']+'.svg',f['title']+' 처리 흐름',f.get('flowNote',''),f['flow'])}
 <div class="problem-solution"><article><span class="small-label">PROBLEM</span><h4>문제</h4><p>{e(f['problem'])}</p></article><article><span class="small-label">SOLUTION</span><h4>해결</h4><p>{e(f['solution'])}</p></article></div>
 <h4 class="feature-subtitle">설계 이유와 트레이드오프</h4>{decisions}{experiment_tables(f.get('tables',[]))}<div class="validation-note"><span class="small-label">{'RESULT' if p.get('featureResultHeading') else 'VALIDATION'}</span><h4>{e(p.get('featureResultHeading','구현 결과와 테스트'))}</h4><p>{e(f['validation'])}</p></div></article>''')
     repo=f'<a class="secondary-button" href="{e(p["repository"])}" target="_blank" rel="noopener noreferrer">GitHub 저장소 ↗</a>' if p.get('repository') else ''
     rows=''.join(f'<tr><th scope="row">{e(k)}</th><td>{e(v)}</td></tr>' for k,v in p['verification'])
     other_links=''.join(f'<a href="{x["id"]}.html"><span>{x["kind"]}</span><strong>{e(x["title"])}</strong><span aria-hidden="true">↗</span></a>' for x in PROJECTS if x['id']!=p['id'])
     body=header(prefix,True)+f'''<main id="main" class="detail theme-{p['theme']}"><div class="container"><div class="breadcrumb"><a href="../index.html#work">← 전체 프로젝트</a><span>CASE {p['number']} / {p['kind']}</span></div><section class="detail-hero" id="overview">{eyebrow('PROJECT DETAIL / '+p['kind'])}<h1>{e(p['title'])}</h1><p class="detail-subtitle">{e(p['subtitle'])}</p><p class="project-meta"><span>{e(p['period'])}</span><span class="status status-{p['statusType']}">{e(p['status'])}</span></p>{chips(p['tags'])}
-<div class="snapshot"><div><span class="small-label">OVERVIEW</span><h2>프로젝트 개요</h2><p>{e(p['summary'])}</p></div><div><span class="small-label">SCOPE</span><h2>담당 업무 및 개발 내용</h2><p>{e(p['scope'])}</p></div></div><dl class="metrics">{metrics}</dl>{repo}</section></div>
+<div class="snapshot"><div><span class="small-label">OVERVIEW</span><h2>프로젝트 개요</h2><p>{e(p['summary'])}</p></div><div><span class="small-label">SCOPE</span><h2>담당 업무 및 개발 내용</h2><p>{e(p['scope'])}</p></div></div><dl class="metrics">{metrics}</dl>{repo}{screenshots(p.get('screenshots',[]),prefix)}</section></div>
 <nav class="detail-nav" aria-label="프로젝트 목차"><div class="container">{nav}</div></nav>
 <div class="container">{journey_html}<section class="detail-section" id="architecture">{section_head(section_number(1),'ARCHITECTURE','시스템 구성과 처리 흐름')}{diagram(prefix+'assets/'+p['id']+'-overview.svg',a['title'],a['note'],a['nodes'])}</section>
 <section class="detail-section" id="features">{section_head(section_number(2),'IMPLEMENTATION',p.get('featureHeading','주요 기능과 설계'),p.get('featureIntro','기능별 처리 흐름과 문제 해결 과정, 설계 이유와 구현 결과를 소개합니다.'))}<noscript><p class="notice">JavaScript가 꺼져 있어 모든 기능 설명을 순서대로 표시합니다. 도식은 이미지 파일을 직접 열어 볼 수 있습니다.</p></noscript><div class="features-layout"><aside class="feature-nav"><p class="small-label">{'EXPERIMENT STAGES' if journey else 'FEATURES'}</p><div role="tablist" aria-label="{e(p['title'])} 기능" aria-orientation="vertical">{''.join(buttons)}</div><a class="back-home" href="../index.html#work">← 프로젝트 목록</a></aside><div class="feature-content">{''.join(panels)}</div></div></section>
@@ -167,7 +204,11 @@ def build(base_path='/'):
         a=p['architecture']
         make_svg('assets/'+p['id']+'-overview.svg',a['title'],a['nodes'],p['theme'],a.get('branch'))
         for f in p['features']:
-            make_svg('assets/'+p['id']+'-'+f['id']+'.svg',f['title']+' 처리 흐름',f['flow'],p['theme'],f.get('branch'),f.get('flowConnected',True))
+            feature_path = 'assets/'+p['id']+'-'+f['id']+'.svg'
+            if f.get('diagramType') == 'sensor-circuit':
+                make_sensor_circuit(feature_path)
+            else:
+                make_svg(feature_path,f['title']+' 처리 흐름',f['flow'],p['theme'],f.get('branch'),f.get('flowConnected',True))
         if p.get('journey'):
             make_journey_svg(p)
         make_detail(p)

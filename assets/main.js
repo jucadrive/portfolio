@@ -69,24 +69,25 @@
   let origin;
   const applyScale = () => {
     if (!image) return;
-    image.style.width = `${scale*100}%`;
+    image.style.width = /\.jpg$/i.test(image.getAttribute('src') || '') ? `${Math.min(600, canvas.clientWidth - 40)*scale}px` : `${scale*100}%`;
     level.value = `${Math.round(scale*100)}%`;
     document.getElementById('zoom-out').disabled = scale <= 1;
     document.getElementById('zoom-in').disabled = scale >= 3;
   };
   document.querySelectorAll('[data-zoom]').forEach(button => {
-    button.addEventListener('click', () => {
+    button.addEventListener('click', event => {
       if (!dialog?.showModal) {
         window.open(button.dataset.zoom, '_blank', 'noopener');
         return;
       }
+      event.preventDefault();
       origin = button;
       image.src = button.dataset.zoom;
       image.alt = button.dataset.title;
       document.getElementById('diagram-title').textContent = button.dataset.title;
       scale = 1;
-      applyScale();
       dialog.showModal();
+      applyScale();
       canvas.scrollTop = 0;
       canvas.scrollLeft = 0;
       document.getElementById('dialog-close').focus();

@@ -89,6 +89,12 @@ allowed_suffixes={'.html','.css','.js','.json','.svg','.md','.py','.yml','.gitig
 for f in ROOT.rglob('*'):
     if not f.is_file() or any(part in ('.local','__pycache__','_public','.git') for part in f.relative_to(ROOT).parts):continue
     if f.is_symlink():errors.append('Symlink in site');continue
+    if f.suffix == '.jpg' and f.parent == ROOT/'assets':
+        if not re.fullmatch(r'(?:peaklog|ppossak)-screen-[a-z]+\.jpg',f.name):
+            errors.append(f'Unexpected image candidate: {f.name}')
+        if not f.read_bytes().startswith(b'\xff\xd8\xff'):
+            errors.append(f'Invalid JPEG: {f.name}')
+        continue
     if f.suffix not in allowed_suffixes and f.name!='.gitignore':errors.append(f'Unexpected publish candidate: {f.name}')
     if f.suffix in {'.pdf','.doc','.docx','.env','.csv','.sql','.log'}:errors.append(f'Raw or runtime data: {f.name}')
     text=f.read_text(encoding='utf-8')
