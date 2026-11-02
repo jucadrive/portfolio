@@ -140,19 +140,37 @@
         "text": "한국정보통신자격협회"
       }
     ],
-    "highlights": [
-      [
-        "평균 조회 응답 75% 단축",
-        "배송지 좌표 조회 API"
-      ],
-      [
-        "LMS·MMS 수집·집계",
-        "API·DB·집계 배치 신규 구축"
-      ],
-      [
-        "연계 API 운영·개선",
-        "기존 REST·SOAP 및 현장 연계"
-      ]
+    "experienceGroups": [
+      {
+        "label": "WORK",
+        "items": [
+          [
+            "평균 조회 응답 75% 단축",
+            "배송지 좌표 조회 API · 쿼리·인덱스 최적화"
+          ],
+          [
+            "API 구축과 운영 개선",
+            "배송 문자 수집·집계 · 모바일·현장 시스템 연계"
+          ]
+        ]
+      },
+      {
+        "label": "SIDE PROJECTS",
+        "items": [
+          [
+            "실물 센서부터 Android 앱까지",
+            "뽀싹 · ESP32 · MQTT · Spring Boot · Compose"
+          ],
+          [
+            "재고 할당 API의 단계별 개선",
+            "WMS-Lite · 동시성 제어 · Redis Lua · Kafka · Outbox"
+          ],
+          [
+            "서비스 분리와 위치 기반 기능 개발",
+            "PeakLog · 서비스별 DB · PostGIS · MinIO"
+          ]
+        ]
+      }
     ]
   },
   "projects": [

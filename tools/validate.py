@@ -59,7 +59,7 @@ def text_pairs(value):
 profile=content['profile']
 require(all(isinstance(profile.get(k),str) and profile[k] for k in ('name','role','email','intro','experience')), 'missing profile text')
 require(isinstance(profile.get('headline'),list) and all(isinstance(s,str) and s for s in profile['headline']), 'headline must be nonempty strings')
-require(text_pairs(profile.get('highlights')), 'highlights must contain text pairs')
+require(bool(profile.get('experienceGroups')) and all(isinstance(g.get('label'),str) and text_pairs(g.get('items')) for g in profile.get('experienceGroups',[])), 'experience groups must contain labels and text pairs')
 project_ids=[p.get('id') for p in content['projects']]
 require(len(project_ids)==len(set(project_ids)), 'duplicate project IDs')
 require([p.get('number') for p in content['projects']]==[f'{i:02d}' for i in range(1,len(project_ids)+1)], 'CASE numbers do not match project order')
