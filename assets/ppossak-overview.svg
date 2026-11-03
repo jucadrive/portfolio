@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 380" width="1150" height="380" role="img" aria-labelledby="title desc">
-<title id="title">실물 센서에서 재배 기록 앱까지</title><desc id="desc">센서 · ESP32: TDS 전압 · 수온 · ppm → MQTT 브로커: 측정값 · 보존 확인 → Spring · PostgreSQL: 원본 저장 · 통계 · API → Android 앱: 측정 · 차트 · 관리 기록; 별도 경로: 앱에서 측정 시작: 재배 대상을 지정해 HTTPS 요청 → 서버에서 장비로 명령: MQTT 제어 → ESP32 측정 세션 시작</desc><defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="#347768"/></marker></defs>
+<title id="title">실물 센서에서 재배 기록 앱까지</title><desc id="desc">TDS·수온 센서 · ESP32: 신호 수집 → 보정 → ppm → MQTT 브로커: 측정값 · 보존 확인 → Spring · PostgreSQL: 원본 저장 · 통계 · API → Android 앱: 측정 · 차트 · 관리 기록; 별도 경로: 앱에서 측정 시작: 재배 대상을 지정해 HTTPS 요청 → 서버에서 장비로 명령: MQTT 제어 → ESP32 측정 세션 시작</desc><defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="#347768"/></marker></defs>
 <rect width="1150" height="380" rx="18" fill="#edf5f1"/><text x="30" y="41" fill="#347768" font-family="sans-serif" font-size="14" letter-spacing="2">실물 센서에서 재배 기록 앱까지</text><g font-family="'Malgun Gothic', sans-serif"><g><rect x="30" y="78" width="250" height="116" rx="12" fill="white" stroke="#347768" stroke-opacity=".28"/>
 <text x="50" y="104" fill="#347768" font-size="13" letter-spacing="1.5">01</text>
-<text x="50" y="138" fill="#23273f" font-size="22" font-weight="700">센서 · ESP32</text>
-<text x="50" y="168" fill="#556173" font-size="17">TDS 전압 · 수온 · ppm</text></g><path d="M 281 136 H 306" stroke="#347768" stroke-width="2" marker-end="url(#arrow)"/><g><rect x="310" y="78" width="250" height="116" rx="12" fill="white" stroke="#347768" stroke-opacity=".28"/>
+<text x="50" y="138" fill="#23273f" font-size="22" font-weight="700">TDS·수온 센서 · ESP32</text>
+<text x="50" y="168" fill="#556173" font-size="17">신호 수집 → 보정 → ppm</text></g><path d="M 281 136 H 306" stroke="#347768" stroke-width="2" marker-end="url(#arrow)"/><g><rect x="310" y="78" width="250" height="116" rx="12" fill="white" stroke="#347768" stroke-opacity=".28"/>
 <text x="330" y="104" fill="#347768" font-size="13" letter-spacing="1.5">02</text>
 <text x="330" y="138" fill="#23273f" font-size="22" font-weight="700">MQTT 브로커</text>
 <text x="330" y="168" fill="#556173" font-size="17">측정값 · 보존 확인</text></g><path d="M 561 136 H 586" stroke="#347768" stroke-width="2" marker-end="url(#arrow)"/><g><rect x="590" y="78" width="250" height="116" rx="12" fill="white" stroke="#347768" stroke-opacity=".28"/>

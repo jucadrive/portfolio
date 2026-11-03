@@ -82,10 +82,10 @@ def make_sensor_circuit(path):
         return f'''<g><rect x="{x}" y="{y}" width="{w}" height="{h}" rx="12" fill="white" stroke="{color}" stroke-opacity=".35"/>
 <text x="{x+17}" y="{y+31}" fill="{color}" font-size="14">{e(label)}</text><text x="{x+17}" y="{y+65}" fill="#23273f" font-size="23" font-weight="700">{e(title)}</text><text x="{x+17}" y="{y+94}" fill="#556173" font-size="16">{e(caption)}</text></g>'''
     boxes = ''.join([
-        box(30,75,215,112,'TDS 센서','SEN0244','영양액 측정 전압'),
+        box(30,75,215,112,'TDS 센서','SEN0244','수중 TDS 측정 신호'),
         box(300,75,215,112,'ADS1115','ADC','전압 디지털 변환'),
         box(30,240,215,112,'DS18B20','TEMPERATURE','실측 수온'),
-        box(590,150,225,130,'ESP32','C · ESP-IDF','수온 보정 · ppm 계산'),
+        box(590,150,225,130,'ESP32','C · ESP-IDF','전압 보정 · ppm 환산'),
         box(890,160,230,112,'보정 TDS · 수온','MQTT','서버로 측정값 전송'),
     ])
     paths = [
@@ -98,10 +98,10 @@ def make_sensor_circuit(path):
                     +(f'<text x="{x}" y="{y}" fill="{color}" font-size="15">{e(label)}</text>' if label else '')
                     for d,label,x,y in paths)
     write(path, f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 400" width="1150" height="400" role="img" aria-labelledby="title desc">
-<title id="title">뽀싹 — 직접 조립한 센서 회로 구성 개념도</title><desc id="desc">TDS 센서 전압은 ADS1115를 거쳐 I2C로 ESP32에 전달됩니다. DS18B20은 1-Wire로 수온을 전달합니다. ESP32가 수온 보정한 ppm과 수온을 MQTT로 전송합니다. 센서 키트를 직접 구입해 빵판과 점퍼 케이블로 연결했습니다. 실제 핀 배선도는 아닙니다.</desc>
+<title id="title">뽀싹 — 직접 조립한 센서 회로 구성 개념도</title><desc id="desc">물의 TDS 센서 신호와 수온을 측정합니다. SEN0244의 아날로그 전압은 ADS1115를 거쳐 I2C로, DS18B20의 수온은 1-Wire로 ESP32에 전달됩니다. 실측 수온으로 TDS 전압을 보정한 뒤 ppm으로 환산해 MQTT로 전송합니다. 센서 키트를 직접 구입해 빵판과 점퍼 케이블로 연결했습니다. 실제 핀 배선도는 아닙니다.</desc>
 <defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="{color}"/></marker><pattern id="holes" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1.1" fill="{color}" fill-opacity=".13"/></pattern></defs>
 <rect width="1150" height="400" rx="18" fill="#edf5f1"/><rect x="272" y="67" width="570" height="292" rx="14" fill="url(#holes)" stroke="{color}" stroke-opacity=".15"/>
-<g font-family="'Malgun Gothic', sans-serif"><text x="30" y="38" fill="{color}" font-size="16">센서 키트 직접 구입 · 빵판과 점퍼 케이블로 회로 조립</text>{wires}{boxes}<text x="590" y="336" fill="{color}" font-size="16">실측 수온을 25°C 기준으로 보정</text><text x="30" y="382" fill="#556173" font-size="13">구성 개념도 · 전원과 GPIO는 실제 장비 설정에서 별도로 관리합니다.</text></g></svg>''')
+<g font-family="'Malgun Gothic', sans-serif"><text x="30" y="38" fill="{color}" font-size="16">센서 키트 직접 구입 · 빵판과 점퍼 케이블로 회로 조립</text>{wires}{boxes}<text x="590" y="336" fill="{color}" font-size="16">실측 수온으로 TDS 전압을 25°C 기준 보정</text><text x="30" y="382" fill="#556173" font-size="13">구성 개념도 · 전원과 GPIO는 실제 장비 설정에서 별도로 관리합니다.</text></g></svg>''')
 
 def diagram(src, title, note, steps=None):
     step_text = ''
